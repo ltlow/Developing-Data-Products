@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Developing Data Products</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Developing Data Products">
+  <meta name="author" content="">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Developing Data Products</h1>
+    <h2>Air Passengers Predictor</h2>
+    <p><br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Introduction</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The Air Passengers Predictor is a shiny application designed to predict the number of air passengers for the classic Box &amp; Jenkins airline, based on the dataset &#39;AirPassengers&#39; provided in R.</p>
+
+<p>The dataset contains monthly totals of international airline passengers from 1949 to 1960. </p>
+
+<p>The application can be accessed with following link: </p>
+
+<p><a href="http://ltlow.shinyapps.io/AirPassengersPredictor">http://ltlow.shinyapps.io/AirPassengersPredictor</a></p>
+
+<h2>How to use it?</h2>
+
+<p>Simply select a year in the drop-down menu to predict the number of air passengers for that year and the result will be displayed.  To view the graph, click on the plot tab.</p>
+
+<p>Eg. To predict the number of air passengers for year 2015, simply select 2015 in the drop-down menu and the result will be shown, then click on the &#39;plot&#39; tab to see the graph.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>How it is built?</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The full code in server.r and ui.r can be obtained from the github with the following link:</p>
+
+<p><a href="https://github.com/ltlow/Developing-Data-Products">https://github.com/ltlow/Developing-Data-Products</a></p>
+
+<p>The main code that dealt with the prediction is as follows:</p>
+
+<pre><code class="r">  library(datasets)            # get dataset
+  APData &lt;- AirPassengers
+  APSumToYr &lt;- aggregate(APData, FUN=sum)   # re-arrange dataset
+  APSumToYr1 &lt;- data.frame(APSumToYr)
+  names(APSumToYr1) &lt;- c(&quot;AirPassengers&quot;)
+  X &lt;- 0:11
+  Year &lt;- 1949:1960
+  APSumToYr2 &lt;- cbind(X, Year, APSumToYr1)
+  Y &lt;- 12:76                        # create new dataset for prediction year reference
+  Yr &lt;- seq(1961,2025, 1)
+  PreAP &lt;- data.frame(Y,Yr)
+  modelData &lt;- lm(AirPassengers~X,APSumToYr2)     # first model
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <article data-timings="">
+    <pre><code class="r">  x = 2015
+  set.seed(1234)                   # set seed for reproducibility
+
+  trainset = sample(1:9, replace = FALSE)   # spilt data set into training and test sets
+  APTrain &lt;- APSumToYr2[trainset, ]
+  APTest &lt;- APSumToYr2[-trainset, ]
+
+  model1 &lt;- lm(AirPassengers~X, APTrain)  # second model from train set
+
+  predTest &lt;- predict(model1, APTest, interval=&#39;prediction&#39;, level = .95 ) # run on test set
+
+  z &lt;- PreAP[&#39;Y&#39;][PreAP$Yr==x, ]    # for prediction year reference
+
+  result &lt;- coef(model1)[2]*z + coef(model1)[1]       # apply into prediction
+  result1 &lt;- round(result, 0)
+  result1
+</code></pre>
+
+<pre><code>##     X 
+## 25120
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Conclusion</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The Air Passengers Predictor is a simple application developed to predict the number of air passengers for the classic Box &amp; Jenkins airline.</p>
+
+<p>However, it is only a proxy predictor as the data provided is from 1949 to 1960 which is quite far from the years for prediction. It may be more accurate in the prediction if more recent data is collected.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Introduction'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='How it is built?'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title=''>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Conclusion'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
